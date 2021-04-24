@@ -1,68 +1,92 @@
 const {Telegraf} = require("telegraf");
 require('dotenv').config();
+var cricapi = require("cricapi");
 const Bot_Token = process.env.Bot_Token;
 const app = new Telegraf(process.env.Bot_Token);
 const axios = require("axios");
-const { createClient } =  require ("pexels");
 
-const client = createClient('563492ad6f91700001000001c2824a8b00ad40c8ae226795f56765e8');
+const cricApiKey = process.env.cricApiKey;
 
 app.start(ctx => {
   console.log(ctx.message.from);
   if (ctx.message.from.username !== undefined) {
     ctx.reply(
-      `Welcome ${ctx.message.from.username} You can Search HD images from here`
-    );
+      `Welcome ${ctx.message.from.username} Give the /matches command to get the list and unique id of the match to get the score.`
+      );
   } else if (ctx.message.from.first_name !== undefined) {
     ctx.reply(
       `Welcome ${ctx.message.from.first_name} ${
-      ctx.message.from.last_name
-      } You can Search HD images from here`
-    );
+        ctx.message.from.last_name
+      } Give the /matches command to get the list and unique id of the match to get the score.`
+      );
   } else {
     ctx.reply(
-      `Welcome ${ctx.message.from.id} You can Search HD images from here`
-    );
+      `Welcome ${ctx.message.from.id} Give the /matches command to get the list and unique id of the match to get the score.`
+      );
   }
 });
 
 app.hears('hi', (ctx) => ctx.reply('Hey there'));
 
-// when user sends a text message app.on("text") will call
-app.on("text", async (ctx) => {
-  try {
-    ctx.reply("⌛️ Please Wait It will take few seconds to grab Images");
-    const query = ctx.message.text;
-    const photos = await client.photos.search({query , per_page: 10 });
-    console.log(photos.photos.length);
-    if(photos.photos.length > 0)
-    {
-      const size = photos.photos.length;
-      for(var i=0;i<size;i++)
+app.command("matches", async(ctx)=> {
+  try
+  {
+    axios.get(`https://cricapi.com/api/matches?apikey=${cricApiKey}`)
+  .then(function (response) {
+    // handle success
+    var matches = [];
+    matches = response.data.matches;
+    var count=0;
+    matches.map(function loop(match){
+      if(match.winner_team===undefined && match.matchStarted==true)
       {
-        ctx.replyWithPhoto({
-            url: photos.photos[i].src.original,
-            filename: 'pic.jpg'
-      })
+        ctx.reply(`🤩 Teams: ${match["team-1"]} vs ${match["team-2"]}\n Unique ID: ${match.unique_id} \n Currently in Progress`)
+          count++;
+          if(count==5)
+                loop.stop = true;
       }
-
-    }
-    else
-    ctx.reply("Sorry Image not found :(");
-  } catch (e) {
-    console.log(e);
-    ctx.reply("Please try after sometime PexelsPlash is down :(")
-  }
+    })
+    matches=matches.slice(0,5);
+    matches.map((match) => (
+        ctx.reply(`🔴 Teams: ${match["team-1"]} vs ${match["team-2"]}\n Unique ID: ${match.unique_id}`)
+    ))
+  })
+  .catch(function (error) {
+    console.log(error);
+    ctx.reply("Sorry! There has been an error :(")
+  })
+  .then(function () {
+  });
+  ctx.reply("Enter the Match ID you wish to know about 🎯")
+}
+catch(e)
+{
+  console.log(e);
+  ctx.reply("Please try after sometime :(")
+}
 });
 
-// const fetchImages = async (text) => {
-//     const photos =  await 
-//       console.log(photos);
-//       if (photos.length > 0) {
-//         console.log(photos);
-//       return photos.map(({ src }) => ({ media: { url: src? NULL :original }, caption: "Pexel", type: "photo" }));
-//     };
-// }
+
+app.on("text", async(ctx)=> {
+  try
+  {
+    console.log(ctx.message.text);
+    axios.get(`https://cricapi.com/api/cricketScore?unique_id=${ctx.message.text}&apikey=${cricApiKey}`)
+  .then(function (response) {
+        ctx.reply(`🏏 Score: ${response.data.score}`);
+  })
+  .catch(function (error) {
+    console.log(error);
+  })
+  .then(function () {
+  });
+}
+catch(e)
+{
+  console.log(e);
+  ctx.reply("Please try after sometime :(")
+}
+});
 
 app.startPolling();
 console.log("Started");

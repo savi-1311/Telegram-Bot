@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
+    "cricapi": "^1.2.9",
     "dotenv": "^8.2.0",
     "pexels": "^1.2.1",
     "telegraf": "^4.3.0"
