@@ -14,3 +14,14 @@ This project is developed by me for learning experience.
 </ul>
 
 <h2>Screen Shots</h2>
+<h4>/start</h4>
+![image](https://user-images.githubusercontent.com/56017960/115953318-5fc50180-a508-11eb-8688-23b20942cae0.png)
+<hr>
+<h4>/matches</h4>
+![image](https://user-images.githubusercontent.com/56017960/115953332-75d2c200-a508-11eb-8ee3-57767bbf7df1.png)
+<hr>
+<h4>unique_id</h4>
+![image](https://user-images.githubusercontent.com/56017960/115953345-85520b00-a508-11eb-9c05-eb6e48aa26b8.png)
+
+<h2>API Used: CricApi</h2>
+
